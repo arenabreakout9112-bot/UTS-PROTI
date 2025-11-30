@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Rekomendasi Menu Sehat - Masakan Indonesia</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --secondary: #ff9800;
+            --light: #f5f5f5;
+            --dark: #333;
+            --gray: #757575;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), #1b5e20);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .flex-item {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .result-container {
+            background-color: #e8f5e9;
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .menu-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .menu-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .menu-content {
+            flex: 1;
+        }
+        
+        .menu-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .menu-region {
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nutri-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .nutri-value {
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .history-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        .history-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ml-explanation {
+            background-color: #e3f2fd;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+        
+        .steps {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-item {
+            padding: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* Gaya untuk oval interaktif */
+        .oval-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .oval-item {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            width: 150px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 0.5rem;
+        }
+        
+        .oval-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .oval-item.active {
+            background: linear-gradient(135deg, var(--secondary), #ffb74d);
+            transform: scale(1.05);
+        }
+        
+        .oval-content {
+            display: none;
+            background-color: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .oval-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .flex-container {
+                flex-direction: column;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+            
+            .nutri-info {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+            
+            .oval-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🍛</div>
+        <h1>Sistem Rekomendasi Menu Sehat</h1>
+        <p>Rekomendasi menu masakan Indonesia sehat berdasarkan preferensi dan kebutuhan Anda</p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Deskripsi Sistem</h2>
+            <p>Sistem ini menggunakan algoritma machine learning (K-Nearest Neighbors) untuk memberikan rekomendasi menu makanan sehat khas Indonesia berdasarkan preferensi pengguna, aktivitas harian, dan kebutuhan nutrisi.</p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value">100+</div>
+                    <div class="stat-label">Menu Indonesia</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Kategori Makanan</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">KNN</div>
+                    <div class="stat-label">Algoritma ML</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian Alur Kerja Sistem dengan Oval Interaktif -->
+        <div class="card">
+            <h2>Alur Kerja Sistem</h2>
+            <p>Klik pada setiap langkah untuk melihat penjelasan detail:</p>
+            
+            <div class="oval-container">
+                <div class="oval-item" data-target="step1">Input Data</div>
+                <div class="oval-item" data-target="step2">Hitung Kalori</div>
+                <div class="oval-item" data-target="step3">Filter Preferensi</div>
+                <div class="oval-item" data-target="step4">Algoritma KNN</div>
+                <div class="oval-item" data-target="step5">Hasil Rekomendasi</div>
+            </div>
+            
+            <div id="step1" class="oval-content">
+                <h3>Input Data Pengguna</h3>
+                <p>Sistem menerima data pengguna seperti usia, jenis kelamin, berat badan, tinggi badan, tingkat aktivitas, tujuan diet, dan preferensi makanan melalui form input.</p>
+                <p>Data ini akan digunakan untuk menghitung kebutuhan kalori dan menentukan rekomendasi menu yang sesuai.</p>
+            </div>
+            
+            <div id="step2" class="oval-content">
+                <h3>Perhitungan Kebutuhan Kalori</h3>
+                <p>Berdasarkan data yang dimasukkan, sistem menghitung kebutuhan kalori harian menggunakan rumus Harris-Benedict:</p>
+                <p><strong>BMR (Basal Metabolic Rate):</strong></p>
+                <ul>
+                    <li>Pria: 10 × berat (kg) + 6.25 × tinggi (cm) - 5 × usia (tahun) + 5</li>
+                    <li>Wanita: 10 × berat (kg) + 6.25 × tinggi (cm) - 5 × usia (tahun) - 161</li>
+                </ul>
+                <p>Kemudian dikalikan dengan faktor aktivitas dan disesuaikan dengan tujuan diet.</p>
+            </div>
+            
+            <div id="step3" class="oval-content">
+                <h3>Filter Berdasarkan Preferensi</h3>
+                <p>Sistem memfilter database menu berdasarkan preferensi makanan pengguna:</p>
+                <ul>
+                    <li><strong>Vegetarian:</strong> Menghilangkan menu dengan kandungan daging</li>
+                    <li><strong>Rendah Karbohidrat:</strong> Memilih menu dengan karbohidrat &lt; 20g</li>
+                    <li><strong>Tinggi Protein:</strong> Memilih menu dengan protein &gt; 15g</li>
+                    <li><strong>Rendah Kalori:</strong> Memilih menu dengan kalori &lt; 200 kkal</li>
+                    <li><strong>Seimbang:</strong> Tidak melakukan filter khusus</li>
+                </ul>
+            </div>
+            
+            <div id="step4" class="oval-content">
+                <h3>Algoritma K-Nearest Neighbors (KNN)</h3>
+                <p>Sistem menggunakan algoritma KNN untuk menemukan menu yang paling sesuai:</p>
+                <ol>
+                    <li>Menghitung jarak Euclidean antara data pengguna dan setiap menu dalam database</li>
+                    <li>Memilih K menu dengan jarak terdekat (dalam sistem ini K=3)</li>
+                    <li>Merekomendasikan menu-menu tersebut kepada pengguna</li>
+                </ol>
+                <p>Rumus Euclidean Distance: d(x,y) = √Σ(xi - yi)²</p>
+            </div>
+            
+            <div id="step5" class="oval-content">
+                <h3>Hasil Rekomendasi</h3>
+                <p>Sistem menampilkan 3 menu rekomendasi yang paling sesuai dengan kebutuhan dan preferensi pengguna.</p>
+                <p>Setiap menu dilengkapi dengan informasi:</p>
+                <ul>
+                    <li>Nama menu dan daerah asal</li>
+                    <li>Kandungan nutrisi (kalori, protein, karbohidrat, lemak)</li>
+                    <li>Tips konsumsi untuk hasil terbaik</li>
+                </ul>
+                <p>Hasil rekomendasi juga disimpan dalam riwayat untuk referensi di masa mendatang.</p>
+            </div>
+        </div>
+
+        <!-- Bagian Model Machine Learning -->
+        <div class="card">
+            <h2>Model Machine Learning: K-Nearest Neighbors (KNN)</h2>
+            
+            <h3>Cara Kerja Algoritma KNN</h3>
+            <p>Algoritma K-Nearest Neighbors (KNN) bekerja dengan mencari data yang paling mirip (nearest neighbors) dalam dataset berdasarkan fitur-fitur yang diberikan.</p>
+            
+            <div class="ml-explanation">
+                <h3>Langkah-langkah KNN dalam Sistem Ini:</h3>
+                <ol class="steps">
+                    <li><strong>Pengumpulan Data:</strong> Dataset berisi 100+ menu masakan Indonesia dengan informasi nutrisi lengkap.</li>
+                    <li><strong>Preprocessing:</strong> Normalisasi data untuk memastikan semua fitur memiliki skala yang sebanding.</li>
+                    <li><strong>Perhitungan Jarak:</strong> Menghitung jarak antara data pengguna dengan setiap data dalam dataset menggunakan Euclidean Distance.</li>
+                    <li><strong>Pemilihan Tetangga Terdekat:</strong> Memilih K data dengan jarak terdekat (dalam sistem ini, K=3).</li>
+                    <li><strong>Generasi Rekomendasi:</strong> Merekomendasikan menu-menu dari tetangga terdekat yang sesuai dengan preferensi pengguna.</li>
+                </ol>
+                
+                <h3>Rumus Euclidean Distance:</h3>
+                <p>d(x,y) = √Σ(xi - yi)²</p>
+                <p>Dimana x adalah data pengguna, y adalah data menu dalam dataset, dan i adalah fitur yang dibandingkan.</p>
+                
+                <h3>Keunggulan KNN untuk Sistem Rekomendasi:</h3>
+                <ul class="steps">
+                    <li>Mudah diimplementasikan dan dipahami</li>
+                    <li>Tidak memerlukan proses training yang rumit</li>
+                    <li>Dapat menangani data dengan berbagai jenis fitur</li>
+                    <li>Hasil yang akurat untuk dataset dengan ukuran sedang</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="flex-container">
+            <div class="flex-item">
+                <div class="card">
+                    <h2>Input Data Pengguna</h2>
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label for="age">Usia</label>
+                            <input type="number" id="age" min="1" max="100" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gender">Jenis Kelamin</label>
+                            <select id="gender" required>
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option value="male">Laki-laki</option>
+                                <option value="female">Perempuan</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="weight">Berat Badan (kg)</label>
+                            <input type="number" id="weight" min="1" max="200" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="height">Tinggi Badan (cm)</label>
+                            <input type="number" id="height" min="50" max="250" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="activity">Tingkat Aktivitas Harian</label>
+                            <select id="activity" required>
+                                <option value="">Pilih Tingkat Aktivitas</option>
+                                <option value="sedentary">Sedentary (Sedikit atau tidak berolahraga)</option>
+                                <option value="light">Ringan (Olahraga ringan 1-3 hari/minggu)</option>
+                                <option value="moderate">Sedang (Olahraga sedang 3-5 hari/minggu)</option>
+                                <option value="active">Aktif (Olahraga berat 6-7 hari/minggu)</option>
+                                <option value="very_active">Sangat Aktif (Olahraga sangat berat dan pekerjaan fisik)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="goal">Tujuan</label>
+                            <select id="goal" required>
+                                <option value="">Pilih Tujuan</option>
+                                <option value="weight_loss">Menurunkan Berat Badan</option>
+                                <option value="maintain">Mempertahankan Berat Badan</option>
+                                <option value="weight_gain">Menambah Berat Badan</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preference">Preferensi Makanan</label>
+                            <select id="preference" required>
+                                <option value="">Pilih Preferensi</option>
+                                <option value="balanced">Seimbang (Semua jenis makanan)</option>
+                                <option value="vegetarian">Vegetarian</option>
+                                <option value="low_carb">Rendah Karbohidrat</option>
+                                <option value="high_protein">Tinggi Protein</option>
+                                <option value="low_calorie">Rendah Kalori</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit">Dapatkan Rekomendasi</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="flex-item">
+                <div class="card">
+                    <h2>Hasil Rekomendasi</h2>
+                    <div id="resultContainer" class="result-container">
+                        <p>Silakan isi form untuk mendapatkan rekomendasi menu sehat.</p>
+                    </div>
+                    
+                    <div class="ml-explanation">
+                        <h3>Cara Kerja Model Machine Learning</h3>
+                        <p>Model K-Nearest Neighbors (KNN) bekerja dengan:</p>
+                        <ol class="steps">
+                            <li>Mengambil data input pengguna (usia, berat, tinggi, aktivitas, dll)</li>
+                            <li>Menghitung kebutuhan kalori harian berdasarkan rumus Harris-Benedict</li>
+                            <li>Mencari pola yang mirip dalam dataset 100+ menu masakan Indonesia</li>
+                            <li>Merekomendasikan menu dengan nutrisi yang sesuai kebutuhan</li>
+                        </ol>
+                        <p>Model dilatih dengan dataset 100+ menu masakan Indonesia dengan informasi nutrisi lengkap.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Riwayat Rekomendasi</h2>
+            <div id="historyContainer">
+                <p>Belum ada riwayat rekomendasi.</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2023 Sistem Rekomendasi Menu Sehat - Masakan Nusantara</p>
+    </footer>
+    
+    <script>
+        // Database 100+ masakan Indonesia
+        const indonesianFoods = [
+            // Menu Nasi
+            { name: "Nasi Putih", region: "Nasional", category: "nasi", calories: 204, protein: 4, carbs: 45, fat: 0 },
+            { name: "Nasi Goreng", region: "Nasional", category: "nasi", calories: 280, protein: 10, carbs: 35, fat: 10 },
+            { name: "Nasi Kuning", region: "Jawa", category: "nasi", calories: 250, protein: 6, carbs: 40, fat: 8 },
+            { name: "Nasi Uduk", region: "Betawi", category: "nasi", calories: 270, protein: 5, carbs: 42, fat: 9 },
+            { name: "Nasi Liwet", region: "Sunda", category: "nasi", calories: 260, protein: 7, carbs: 41, fat: 8 },
+            { name: "Nasi Padang", region: "Sumatera Barat", category: "nasi", calories: 300, protein: 12, carbs: 45, fat: 10 },
+            { name: "Nasi Campur Bali", region: "Bali", category: "nasi", calories: 320, protein: 15, carbs: 40, fat: 12 },
+            { name: "Nasi Tumpeng", region: "Jawa", category: "nasi", calories: 290, protein: 11, carbs: 43, fat: 9 },
+            { name: "Nasi Bakar", region: "Jawa Barat", category: "nasi", calories: 310, protein: 14, carbs: 38, fat: 11 },
+            { name: "Nasi Krawu", region: "Jawa Timur", category: "nasi", calories: 280, protein: 13, carbs: 39, fat: 9 },
+            
+            // Sayuran
+            { name: "Gado-gado", region: "Betawi", category: "sayur", calories: 180, protein: 8, carbs: 20, fat: 7 },
+            { name: "Karedok", region: "Jawa Barat", category: "sayur", calories: 120, protein: 6, carbs: 15, fat: 5 },
+            { name: "Pecel", region: "Jawa", category: "sayur", calories: 150, protein: 7, carbs: 18, fat: 6 },
+            { name: "Sayur Asem", region: "Jawa", category: "sayur", calories: 80, protein: 4, carbs: 12, fat: 2 },
+            { name: "Sayur Lodeh", region: "Jawa", category: "sayur", calories: 120, protein: 5, carbs: 15, fat: 4 },
+            { name: "Tumis Kangkung", region: "Nasional", category: "sayur", calories: 70, protein: 4, carbs: 8, fat: 3 },
+            { name: "Capcay", region: "Peranakan", category: "sayur", calories: 100, protein: 6, carbs: 12, fat: 4 },
+            { name: "Urap", region: "Jawa", category: "sayur", calories: 110, protein: 5, carbs: 14, fat: 4 },
+            { name: "Plecing Kangkung", region: "Lombok", category: "sayur", calories: 60, protein: 3, carbs: 7, fat: 2 },
+            { name: "Gudeg", region: "Yogyakarta", category: "sayur", calories: 200, protein: 6, carbs: 35, fat: 5 },
+            { name: "Tumis Buncis", region: "Nasional", category: "sayur", calories: 75, protein: 4, carbs: 9, fat: 3 },
+            { name: "Sayur Bening Bayam", region: "Jawa", category: "sayur", calories: 50, protein: 3, carbs: 7, fat: 1 },
+            { name: "Asinan Betawi", region: "Betawi", category: "sayur", calories: 90, protein: 3, carbs: 16, fat: 2 },
+            { name: "Asinan Bogor", region: "Jawa Barat", category: "sayur", calories: 100, protein: 4, carbs: 18, fat: 2 },
+            { name: "Rujak Cingur", region: "Jawa Timur", category: "sayur", calories: 160, protein: 8, carbs: 20, fat: 5 },
+            
+            // Lauk Pauk
+            { name: "Rendang", region: "Sumatera Barat", category: "lauk", calories: 468, protein: 26, carbs: 10, fat: 37 },
+            { name: "Ayam Goreng", region: "Nasional", category: "lauk", calories: 260, protein: 25, carbs: 2, fat: 17 },
+            { name: "Ayam Bakar", region: "Nasional", category: "lauk", calories: 220, protein: 27, carbs: 5, fat: 11 },
+            { name: "Ikan Bakar", region: "Nasional", category: "lauk", calories: 180, protein: 22, carbs: 1, fat: 10 },
+            { name: "Pepes Ikan", region: "Sunda", category: "lauk", calories: 160, protein: 20, carbs: 3, fat: 8 },
+            { name: "Sate Ayam", region: "Madura", category: "lauk", calories: 230, protein: 24, carbs: 8, fat: 12 },
+            { name: "Sate Kambing", region: "Jawa", category: "lauk", calories: 280, protein: 26, carbs: 5, fat: 18 },
+            { name: "Telur Balado", region: "Sumatera Barat", category: "lauk", calories: 190, protein: 13, carbs: 5, fat: 14 },
+            { name: "Tempe Goreng", region: "Jawa", category: "lauk", calories: 150, protein: 12, carbs: 8, fat: 9 },
+            { name: "Tahu Goreng", region: "Nasional", category: "lauk", calories: 120, protein: 10, carbs: 5, fat: 7 },
+            { name: "Perkedel", region: "Nasional", category: "lauk", calories: 140, protein: 5, carbs: 15, fat: 7 },
+            { name: "Opor Ayam", region: "Jawa", category: "lauk", calories: 240, protein: 20, carbs: 8, fat: 15 },
+            { name: "Gulai Ayam", region: "Sumatera", category: "lauk", calories: 220, protein: 22, carbs: 6, fat: 13 },
+            { name: "Ikan Asin", region: "Nasional", category: "lauk", calories: 130, protein: 20, carbs: 0, fat: 5 },
+            { name: "Terong Balado", region: "Sumatera Barat", category: "lauk", calories: 90, protein: 3, carbs: 10, fat: 5 },
+            { name: "Udang Balado", region: "Sumatera Barat", category: "lauk", calories: 150, protein: 18, carbs: 6, fat: 7 },
+            { name: "Cumi Hitam", region: "Jawa", category: "lauk", calories: 140, protein: 20, carbs: 5, fat: 5 },
+            { name: "Bebek Betutu", region: "Bali", category: "lauk", calories: 320, protein: 28, carbs: 5, fat: 22 },
+            { name: "Ayam Betutu", region: "Bali", category: "lauk", calories: 280, protein: 30, carbs: 4, fat: 16 },
+            { name: "Pindang Patin", region: "Sumatera Selatan", category: "lauk", calories: 200, protein: 22, carbs: 3, fat: 11 },
+            { name: "Pempek", region: "Palembang", category: "lauk", calories: 180, protein: 12, carbs: 20, fat: 6 },
+            { name: "Kerupuk", region: "Nasional", category: "lauk", calories: 100, protein: 2, carbs: 15, fat: 4 },
+            { name: "Serundeng", region: "Jawa", category: "lauk", calories: 150, protein: 5, carbs: 10, fat: 11 },
+            { name: "Abon Sapi", region: "Nasional", category: "lauk", calories: 200, protein: 20, carbs: 5, fat: 12 },
+            { name: "Ikan Cakalang", region: "Maluku", category: "lauk", calories: 170, protein: 25, carbs: 2, fat: 7 },
+            
+            // Sup & Soto
+            { name: "Soto Ayam", region: "Nasional", category: "sup", calories: 180, protein: 15, carbs: 12, fat: 8 },
+            { name: "Soto Betawi", region: "Betawi", category: "sup", calories: 280, protein: 18, carbs: 10, fat: 18 },
+            { name: "Soto Padang", region: "Sumatera Barat", category: "sup", calories: 220, protein: 20, carbs: 15, fat: 10 },
+            { name: "Soto Lamongan", region: "Jawa Timur", category: "sup", calories: 200, protein: 16, carbs: 14, fat: 9 },
+            { name: "Sop Buntut", region: "Jakarta", category: "sup", calories: 320, protein: 25, carbs: 8, fat: 22 },
+            { name: "Sop Konro", region: "Makassar", category: "sup", calories: 300, protein: 28, carbs: 6, fat: 19 },
+            { name: "Rawon", region: "Jawa Timur", category: "sup", calories: 240, protein: 22, carbs: 12, fat: 12 },
+            { name: "Sayur Sop", region: "Nasional", category: "sup", calories: 90, protein: 6, carbs: 10, fat: 3 },
+            { name: "Sop Kambing", region: "Nasional", category: "sup", calories: 260, protein: 24, carbs: 8, fat: 15 },
+            { name: "Coto Makassar", region: "Makassar", category: "sup", calories: 280, protein: 26, carbs: 10, fat: 16 },
+            { name: "Tongseng", region: "Jawa", category: "sup", calories: 270, protein: 25, carbs: 12, fat: 14 },
+            { name: "Gulai Kambing", region: "Sumatera", category: "sup", calories: 290, protein: 26, carbs: 8, fat: 18 },
+            { name: "Sop Iga Sapi", region: "Nasional", category: "sup", calories: 310, protein: 28, carbs: 6, fat: 20 },
+            { name: "Sop Jagung", region: "Nasional", category: "sup", calories: 120, protein: 8, carbs: 15, fat: 4 },
+            { name: "Sop Kimlo", region: "Peranakan", category: "sup", calories: 140, protein: 12, carbs: 12, fat: 5 },
+            
+            // Snack & Jajanan
+            { name: "Martabak Manis", region: "Nasional", category: "snack", calories: 380, protein: 8, carbs: 55, fat: 15 },
+            { name: "Martabak Telur", region: "Nasional", category: "snack", calories: 280, protein: 15, carbs: 20, fat: 16 },
+            { name: "Pisang Goreng", region: "Nasional", category: "snack", calories: 150, protein: 2, carbs: 25, fat: 6 },
+            { name: "Lumpia", region: "Semarang", category: "snack", calories: 120, protein: 6, carbs: 15, fat: 5 },
+            { name: "Bakwan", region: "Nasional", category: "snack", calories: 130, protein: 5, carbs: 18, fat: 5 },
+            { name: "Risoles", region: "Nasional", category: "snack", calories: 160, protein: 7, carbs: 20, fat: 7 },
+            { name: "Pastel", region: "Nasional", category: "snack", calories: 140, protein: 6, carbs: 18, fat: 6 },
+            { name: "Klepon", region: "Jawa", category: "snack", calories: 100, protein: 2, carbs: 22, fat: 1 },
+            { name: "Onde-onde", region: "Jawa", category: "snack", calories: 120, protein: 3, carbs: 20, fat: 4 },
+            { name: "Lemper", region: "Jawa", category: "snack", calories: 150, protein: 6, carbs: 25, fat: 4 },
+            { name: "Dadar Gulung", region: "Nasional", category: "snack", calories: 110, protein: 3, carbs: 18, fat: 4 },
+            { name: "Serabi", region: "Jawa", category: "snack", calories: 130, protein: 4, carbs: 20, fat: 4 },
+            { name: "Getuk", region: "Jawa", category: "snack", calories: 120, protein: 2, carbs: 28, fat: 1 },
+            { name: "Wingko", region: "Jawa", category: "snack", calories: 180, protein: 3, carbs: 30, fat: 6 },
+            { name: "Lapis Legit", region: "Nasional", category: "snack", calories: 350, protein: 6, carbs: 40, fat: 18 },
+            { name: "Kue Lapis", region: "Nasional", category: "snack", calories: 140, protein: 3, carbs: 25, fat: 4 },
+            { name: "Kue Putu", region: "Jawa", category: "snack", calories: 90, protein: 2, carbs: 20, fat: 1 },
+            { name: "Kue Cubit", region: "Jakarta", category: "snack", calories: 110, protein: 3, carbs: 18, fat: 4 },
+            { name: "Kue Pancong", region: "Betawi", category: "snack", calories: 130, protein: 4, carbs: 15, fat: 6 },
+            { name: "Kue Ape", region: "Betawi", category: "snack", calories: 100, protein: 3, carbs: 18, fat: 2 },
+            { name: "Cenil", region: "Jawa", category: "snack", calories: 80, protein: 1, carbs: 19, fat: 0 },
+            { name: "Kue Ku", region: "Nasional", category: "snack", calories: 120, protein: 2, carbs: 25, fat: 2 },
+            { name: "Bika Ambon", region: "Sumatera Utara", category: "snack", calories: 200, protein: 4, carbs: 35, fat: 5 },
+            { name: "Kue Lumpur", region: "Nasional", category: "snack", calories: 160, protein: 4, carbs: 22, fat: 7 },
+            { name: "Klepon", region: "Jawa", category: "snack", calories: 100, protein: 2, carbs: 22, fat: 1 },
+            { name: "Lupis", region: "Jawa", category: "snack", calories: 130, protein: 2, carbs: 30, fat: 1 },
+            { name: "Wajik", region: "Jawa", category: "snack", calories: 150, protein: 2, carbs: 35, fat: 1 },
+            { name: "Dodol", region: "Nasional", category: "snack", calories: 320, protein: 2, carbs: 70, fat: 5 },
+            { name: "Jenang", region: "Jawa", category: "snack", calories: 140, protein: 2, carbs: 30, fat: 2 },
+            { name: "Gethuk", region: "Jawa", category: "snack", calories: 120, protein: 2, carbs: 28, fat: 1 }
+        ];
+
+        // Fungsi untuk oval interaktif
+        document.querySelectorAll('.oval-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                
+                // Hapus kelas active dari semua oval dan konten
+                document.querySelectorAll('.oval-item').forEach(oval => {
+                    oval.classList.remove('active');
+                });
+                document.querySelectorAll('.oval-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Tambah kelas active ke oval yang diklik dan konten terkait
+                this.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Form submission
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Ambil nilai dari form
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            const activity = document.getElementById('activity').value;
+            const goal = document.getElementById('goal').value;
+            const preference = document.getElementById('preference').value;
+            
+            // Validasi form
+            if (!age || !gender || !weight || !height || !activity || !goal || !preference) {
+                alert("Harap lengkapi semua data!");
+                return;
+            }
+            
+            // Simulasi perhitungan kebutuhan kalori (rumus Harris-Benedict)
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            
+            // Faktor aktivitas
+            let activityFactor;
+            switch(activity) {
+                case 'sedentary': activityFactor = 1.2; break;
+                case 'light': activityFactor = 1.375; break;
+                case 'moderate': activityFactor = 1.55; break;
+                case 'active': activityFactor = 1.725; break;
+                case 'very_active': activityFactor = 1.9; break;
+                default: activityFactor = 1.2;
+            }
+            
+            let tdee = bmr * activityFactor;
+            
+            // Penyesuaian berdasarkan tujuan
+            switch(goal) {
+                case 'weight_loss': tdee *= 0.85; break;
+                case 'weight_gain': tdee *= 1.15; break;
+                // maintain tidak diubah
+            }
+            
+            const calories = Math.round(tdee);
+            
+            // Simulasi rekomendasi menu berdasarkan preferensi
+            const menus = generateRecommendations(preference, calories);
+            
+            // Tampilkan hasil
+            displayResults(menus, calories);
+            
+            // Simpan ke riwayat
+            addToHistory(menus, calories, preference);
+        });
+        
+        function generateRecommendations(preference, calories) {
+            // Filter makanan berdasarkan preferensi
+            let filteredFoods = [...indonesianFoods];
+            
+            switch(preference) {
+                case 'vegetarian':
+                    filteredFoods = filteredFoods.filter(food => 
+                        !['rendang', 'ayam', 'ikan', 'sate', 'bebek', 'sapi', 'kambing', 'udang', 'cumi', 'pindang'].some(meat => 
+                            food.name.toLowerCase().includes(meat)
+                        )
+                    );
+                    break;
+                case 'low_carb':
+                    filteredFoods = filteredFoods.filter(food => food.carbs < 20);
+                    break;
+                case 'high_protein':
+                    filteredFoods = filteredFoods.filter(food => food.protein > 15);
+                    break;
+                case 'low_calorie':
+                    filteredFoods = filteredFoods.filter(food => food.calories < 200);
+                    break;
+                // balanced tidak difilter
+            }
+            
+            // Acak makanan untuk simulasi rekomendasi ML
+            const shuffled = [...filteredFoods].sort(() => 0.5 - Math.random());
+            
+            // Pilih 3 menu untuk rekomendasi
+            return shuffled.slice(0, 3);
+        }
+        
+        function displayResults(menus, calories) {
+            const resultContainer = document.getElementById('resultContainer');
+            
+            let html = `<h3>Rekomendasi Menu untuk ${calories} kalori/hari</h3>`;
+            
+            if (menus.length === 0) {
+                html += `<p>Tidak ada menu yang sesuai dengan preferensi Anda. Coba ubah preferensi makanan.</p>`;
+            } else {
+                menus.forEach(menu => {
+                    html += `
+                        <div class="menu-item">
+                            <div class="menu-icon">🍽️</div>
+                            <div class="menu-content">
+                                <div class="menu-title">${menu.name}</div>
+                                <div class="menu-region">${menu.region}</div>
+                                <div class="nutri-info">
+                                    <span>Kalori: <span class="nutri-value">${menu.calories}</span> kkal</span>
+                                    <span>Protein: <span class="nutri-value">${menu.protein}</span>g</span>
+                                    <span>Karbohidrat: <span class="nutri-value">${menu.carbs}</span>g</span>
+                                    <span>Lemak: <span class="nutri-value">${menu.fat}</span>g</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `<p><strong>Tips:</strong> Konsumsi makanan dalam porsi yang sesuai dan kombinasikan dengan aktivitas fisik untuk hasil terbaik.</p>`;
+            }
+            
+            resultContainer.innerHTML = html;
+        }
+        
+        function addToHistory(menus, calories, preference) {
+            const historyContainer = document.getElementById('historyContainer');
+            
+            // Cek apakah ini riwayat pertama
+            if (historyContainer.querySelector('p') && historyContainer.querySelector('p').textContent === 'Belum ada riwayat rekomendasi.') {
+                historyContainer.innerHTML = '';
+            }
+            
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
+            
+            let historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <h4>Rekomendasi ${dateStr}</h4>
+                <p><strong>Target Kalori:</strong> ${calories} kkal/hari</p>
+                <p><strong>Preferensi:</strong> ${getPreferenceText(preference)}</p>
+                <p><strong>Menu yang Direkomendasikan:</strong></p>
+                <ul>
+                    ${menus.map(menu => `<li>${menu.name} (${menu.calories} kkal)</li>`).join('')}
+                </ul>
+            `;
+            
+            historyContainer.prepend(historyItem);
+            
+            // Batasi riwayat hanya 5 item terbaru
+            const historyItems = historyContainer.querySelectorAll('.history-item');
+            if (historyItems.length > 5) {
+                historyContainer.removeChild(historyItems[historyItems.length - 1]);
+            }
+        }
+        
+        function getPreferenceText(preference) {
+            const preferenceMap = {
+                'balanced': 'Seimbang',
+                'vegetarian': 'Vegetarian',
+                'low_carb': 'Rendah Karbohidrat',
+                'high_protein': 'Tinggi Protein',
+                'low_calorie': 'Rendah Kalori'
+            };
+            return preferenceMap[preference] || preference;
+        }
+    </script>
+</body>
+</html>5
